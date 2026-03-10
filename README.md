@@ -1,90 +1,272 @@
 # PoFTR: Physics-Informed Transformer for Cross-Spectral Image Registration
 
-This repository contains the official implementation of **PoFTR**. 
+> **ECCV 2026 Submission #1683**
 
-PoFTR is a physics-informed transformer designed for extreme cross-spectral image registration (e.g., 11μm LWIR to Visible PAN). By integrating physical priors through Spatial Feature Transform (SFT) layers, our method maintains geometric consistency even in the presence of extreme radiometric discrepancies where general foundation models fail.
+<p align="center">
+  <img src="assets/teaser_matchanything.png" width="48%"/>
+  &nbsp;
+  <img src="assets/teaser_poftr.png" width="48%"/>
+</p>
+<table align="center" width="100%" border="0">
+  <tr>
+    <td align="center" width="50%"><em>(a) MatchAnything</em></td>
+    <td align="center" width="50%"><em>(b) PoFTR (Ours)</em></td>
+  </tr>
+</table>
 
-## 🚀 Key Features
+Cross-spectral image registration in remote sensing is fundamentally challenged
+by extreme appearance discrepancies: even images of the same scene captured in
+different LWIR bands can exhibit severe radiometric inversions, where local
+contrast polarities completely reverse across modalities. Standard
+transformer-based matchers, despite strong RGB performance, are appearance-driven
+and collapse under these non-monotonic radiometric phenomena.
 
-* **Physics-Aware Conditioning:** Integration of physical priors via SFT layers to ensure geometric consistency.
-* **Cross-Spectral Robustness:** Specifically optimized for 9μm and 11μm thermal-to-visible registration challenges.
-* **Modular Architecture:** Evaluation support for modified versions of LoFTR and ASpanFormer backbones.
+**PoFTR** addresses this by embedding physically grounded temperature priors
+directly into the feature matching pipeline. Rather than treating spectral bands
+as generic image channels, PoFTR leverages the fact that surface temperature —
+governed by Planck's law — is a spectrally consistent physical quantity
+recoverable across all LWIR modalities, and uses it as a conditioning signal via
+**Spatial Feature Transform (SFT)** layers.
 
-## 🛠 Installation
+---
 
+## Contributions
+
+- **AeroSync** — a large-scale synthetic LWIR multispectral dataset combining
+GAN-based spectral synthesis (PETIT-GAN) with a 6-DoF view simulator, producing
+pixel-aligned PAN / 9µm / 11µm image triplets with controlled viewpoint overlap
+and calibrated covisibility distributions.
+
+- **PoFTR** — a physics-informed transformer that integrates PETIT-S temperature
+priors at multiple feature hierarchy levels (input, coarse, fine), enabling
+spatially varying feature modulation without altering the core matcher
+architecture.
+
+---
+## Key Results
+### Real World Results:
+
+<table>
+  <thead>
+    <tr>
+      <th>Dataset</th>
+      <th>Method</th>
+      <th>Inlier Ratio (%) ↑</th>
+      <th># Inliers ↑</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td rowspan="3">9µm–PAN</td>
+      <td>MatchAnything</td>
+      <td>31.2 ± 33.5</td>
+      <td>5.4 ± 6.2</td>
+    </tr>
+    <tr>
+      <td>XoFTR</td>
+      <td>93.5 ± 2.7</td>
+      <td>722.7 ± 23.1</td>
+    </tr>
+    <tr>
+      <td><strong>PoFTR (ours)</strong></td>
+      <td><strong>99.9 ± 0.3</strong></td>
+      <td><strong>783.4 ± 2.5</strong></td>
+    </tr>
+    <tr>
+      <td rowspan="3">11µm–PAN</td>
+      <td>MatchAnything</td>
+      <td>34.1 ± 31.6</td>
+      <td>9.6 ± 15.5</td>
+    </tr>
+    <tr>
+      <td>XoFTR</td>
+      <td>99.9 ± 0.4</td>
+      <td>783.1 ± 2.9</td>
+    </tr>
+    <tr>
+      <td><strong>PoFTR (ours)</strong></td>
+      <td><strong>99.9 ± 0.3</strong></td>
+      <td><strong>783.4 ± 2.5</strong></td>
+    </tr>
+    <tr>
+      <td rowspan="3">9µm–11µm</td>
+      <td>MatchAnything</td>
+      <td>68.5 ± 17.3</td>
+      <td>781.5 ± 580.3</td>
+    </tr>
+    <tr>
+      <td>XoFTR</td>
+      <td>99.9 ± 0.1</td>
+      <td>783.9 ± 0.3</td>
+    </tr>
+    <tr>
+      <td><strong>PoFTR (ours)</strong></td>
+      <td><strong>99.9 ± 0.1</strong></td>
+      <td><strong>783.9 ± 0.7</strong></td>
+    </tr>
+  </tbody>
+</table>
+
+> For full benchmark results across all spectral configurations and baselines on the AeroSync dataset, see Table 1 in the paper.
+
+
+
+---
+
+## Installation
+
+**1. Clone the repository**
 ```bash
-# Clone the repository
-git clone https://anonymous.4open.science/r/PoFTR-XXXX/
+git clone https://anonymous.4open.science/r/PoFTR-6217/
 cd PoFTR
-
-# Install dependencies
-pip install -r requirements.txt
 ```
 
-## 📊 Reproducing Results
-
-### 1. Main Quantitative Results
-
-To evaluate PoFTR on the 11μm–PAN test set and replicate our performance gains:
-
+**2. Create and activate the environment**
 ```bash
-python test.py --config configs/poftr_11um.yaml --dataset_type test
+conda env create -f environment.yml
+conda activate poftr
 ```
 
-### 2. Ablation Studies (Prior Fidelity)
+**3. Download data and checkpoints**
 
-We provide built-in support for the prior fidelity experiments. Use the `--ablation_version` flag to perturb the physical prior during inference to verify geometric dependency:
+Download the dataset and pretrained checkpoints from the
+[dataset link](https://bit.ly/PoFTR_Dataset) and place them under `data/`
+and `checkpoints/` respectively, as described in the [Evaluation](#evaluation)
+section.
 
-| Ablation Type | Description | Command |
-|---------------|-------------|---------|
-| **Clean (Ours)** | Standard Physics-Informed Prior | `--ablation_version standard` |
-| **Noisy** | Gaussian noise added to prior | `--ablation_version noisy` |
-| **Shuffled** | 16 × 16 block-wise spatial shuffle | `--ablation_version shuffled` |
-| **Zeroed** | Null physical prior channels | `--ablation_version zeroed_priors` |
+## Training (Fine Tunning)
+### PoFTR
 
-**Example:**
+> **Note:** Pretrained checkpoints for all models are available in the
+> [dataset link](https://bit.ly/PoFTR_Dataset). The following is only needed
+> if you wish to fine-tune the models yourself on the AeroSync dataset.
+
+All training settings are configured in `src/configs/poftr_configs.py`. 
+The key fields to set before fine-tuning:
+```python
+config['poftr']['proj']['base_model'] # 'xoftr', 'loftr', or 'aspanformer'
+config['poftr']['phys']['use_phys']   # True = PoFTR, False = baseline
+config['data']['dataset_version']     # '9um_pan', '11um_pan', or '9um_11um'
+config['poftr']['pretrained_ckpt']    # path to pretrained backbone weights
+```
+
+Then run:
 ```bash
-python test.py --config configs/poftr_11um.yaml --dataset_type test --ablation_version noisy
+cd training_scripts
+python train.py
 ```
 
-## 📂 Project Structure
+Checkpoints are saved automatically and the best validation checkpoint is
+tested at the end of training.
 
-* `src/dataset/`: Contains `MonochromeDs` with integrated perturbation logic for ablations.
-* `src/models/`: Implementation of SFT layers and physics-aware conditioning modules.
-* `configs/`: YAML configurations for different spectral bands and model variants.
+### PETIT-S
+PETIT-S is the lightweight temperature prior network distilled from PETIT-GAN.
+Pretrained PETIT-S weights are provided in the checkpoint download and are
+sufficient to reproduce all results. The following is only needed if you wish
+to fine-tune PETIT-S yourself.
 
-## 📝 Citation
-
-If you find this work useful for your research, please cite our ECCV submission:
-
-```bibtex
-@inproceedings{poftr2026,
-  title={PoFTR: Physics-Informed Transformer for Cross-Spectral Image Registration},
-  author={Anonymous Authors},
-  booktitle={European Conference on Computer Vision (ECCV)},
-  year={2026}
-}
+Set the target band and fold in `src/dataset/physical_model/petit_s/utils/petits_configs.py`:
+```python
+cfg.DATA.wl        = "11um"  # "9um" or "11um"
+cfg.RUN.fold_idx   = 0       # 0–4 for 5-fold cross-validation
+cfg.PROJ.cwd       = "path/to/PoFTR"
+cfg.PHYS.coeff_path = "path/to/coefficients_{wl}.npz"
 ```
 
-## 📦 Requirements
-
-Create a `requirements.txt` file with the following dependencies:
-
-```text
-torch>=1.8.1
-pytorch-lightning==1.3.5
-torchmetrics==0.6.0
-opencv-python==4.4.0.46
-albumentations==0.5.1
-kornia==0.4.1
-numpy==1.24.4
-h5py==3.1.0
-yacs
-loguru
-tqdm
-matplotlib
+Then run:
+```bash
+cd training_scripts
+python train_petit_s.py
 ```
 
-## 📧 Contact
+Repeat for each fold (`fold_idx` 0–4) and each band (`9um`, `11um`).
+## Evaluation
 
-For questions or issues, please open an issue in this repository or contact the anonymous authors through the conference review system.
+### Prerequisites
+
+**1. Clone the repository and set up the environment**
+```bash
+git clone https://anonymous.4open.science/r/PoFTR-6217/
+cd PoFTR
+conda env create -f environment.yml
+conda activate poftr
+```
+
+**2. Download data and checkpoints**
+
+Download the dataset and pretrained checkpoints from the [dataset link](https://bit.ly/PoFTR_Dataset)
+and place them according to the following structure:
+```
+PoFTR/
+├── data/
+│   ├── real_world/          ← real-world .npz files
+│   ├── csv_outputs/         ← matched pairs CSVs
+│   ├── simulated/           ← AeroSync webdataset shards
+│   └── physical_model/      ← PETIT-GAN calibration coefficients
+└── checkpoints/
+    └── best/                ← pretrained model checkpoints
+```
+
+**3. Configure paths**
+
+Edit `configs/eval_config.yaml` to set your local paths:
+```yaml
+checkpoint_base: checkpoints
+data_root:        data/real_world
+sim2real_csv_dir: data/csv_outputs
+stats_base:       data/simulated/datasets/truncnorm
+coeff_dir:        data/physical_model/coeffs
+results_dir:      evaluation_results
+```
+
+---
+
+### Reproduce AeroSync Benchmark
+
+Evaluates PoFTR and baselines on the AeroSync synthetic test set across all three
+spectral configurations (9µm–PAN, 11µm–PAN, 9µm–11µm).
+
+To evaluate **PoFTR**:
+```yaml
+# configs/eval_config.yaml
+model_name: xoftr
+use_phys:   true
+```
+
+To evaluate a **baseline** (e.g. XoFTR):
+```yaml
+# configs/eval_config.yaml
+model_name: xoftr   # or: loftr, aspanformer
+use_phys:   false
+```
+
+Then run:
+```bash
+python eval_aerosync.py
+```
+
+Results (Pose Success, MMA@3, #Inliers) will be printed to the terminal and saved to:
+```
+evaluation_results/aerosync_results.csv
+```
+
+---
+
+### Reproduce Sim-to-Real Generalization
+
+Evaluates MatchAnything, XoFTR, and PoFTR on real-world aerial captures across
+all three cross-spectral configurations (9µm–PAN, 11µm–PAN, 9µm–11µm).
+No configuration changes are needed — all three models are evaluated automatically.
+```bash
+python eval_sim2real.py
+```
+
+Results (Inlier Ratio, #Inliers) will be printed to the terminal and saved to:
+```
+evaluation_results/sim2real_results.csv
+evaluation_results/{band_pair}/{model}_detailed.csv
+```
+
+## Citation
+
+*Available after review.*
