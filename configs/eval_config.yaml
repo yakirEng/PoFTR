@@ -1,0 +1,44 @@
+# =======================================================
+# PoFTR Evaluation Configuration
+# =======================================================
+# Edit this file before running eval_aerosync.py
+# or eval_sim2real.py
+
+# --- Model ---
+# To reproduce PoFTR results:
+#   model_name: xoftr
+#   use_phys:   true
+#
+# To reproduce baseline results:
+#   model_name: xoftr      # or: loftr, aspanformer
+#   use_phys:   false
+
+model_name: xoftr          # options: xoftr, loftr, aspanformer
+use_phys:   true           # true = PoFTR (physics-aware), false = baseline
+
+# --- Checkpoints ---
+checkpoint_base: checkpoints
+# Expected structure:
+#   checkpoints/best/{band_pair}/{model_name}/{phys|no_phys}/best.ckpt
+
+# --- AeroSync Evaluation (eval_aerosync.py) ---
+band_pairs:
+  - 9um_pan
+  - 11um_pan
+  - 9um_11um
+data_root: data            # root path for AeroSync webdataset shards
+
+# --- Sim2Real Evaluation (eval_sim2real.py) ---
+sim2real_data_root: data/real_world    # path to real-world .npz files
+sim2real_csv_dir:   data/csv_outputs   # path to matched pairs CSVs
+dist_thresh:        10.0               # max distance (meters) between paired captures
+n_samples:          320                # number of pairs to evaluate
+crop_size:          256
+
+# --- Runtime ---
+batch_size:      8
+num_workers:     4
+prefetch_factor: 2
+
+# --- Output ---
+results_dir: evaluation_results        # where to save result CSVs
