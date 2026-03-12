@@ -199,25 +199,35 @@ and place them according to the following structure:
 ```
 PoFTR/
 ├── data/
-│   ├── real_world/          ← real-world .npz files + coeffs/
-│   │   └── coeffs/          ← ThermalRegress coefficients_*.npy
-│   ├── csv_outputs/         ← matched pairs CSVs
-│   ├── stats/               ← per-pair stats.json files
-│   └── <band_pair>/         ← AeroSync webdataset shards (e.g. 9um_pan/)
+│   ├── AeroSync/
+│   │   ├── 9um_pan/
+│   │   │   ├── stats.json
+│   │   │   └── test/shard-*.tar
+│   │   ├── 11um_pan/
+│   │   │   ├── stats.json
+│   │   │   └── test/shard-*.tar
+│   │   └── 9um_11um/
+│   │       ├── stats.json
+│   │       └── test/shard-*.tar
+│   └── real_world/
+│       ├── 9000nm/          ← real-world .npz captures
+│       ├── 11000nm/
+│       ├── pan/
+│       ├── csv_outputs/     ← matched pairs CSVs
+│       └── coeffs/          ← ThermalRegress coefficients_*.npy
 └── checkpoints/
-    └── best/                ← pretrained model checkpoints
+    └── matchers/            ← pretrained model checkpoints
 ```
 
 **3. Configure paths**
 
 Edit `configs/eval_config.yaml` to set your local paths:
 ```yaml
-checkpoint_base:    checkpoints
-data_root:          data                     # AeroSync webdataset shards
-sim2real_data_root: data/real_world          # real-world .npz files
-sim2real_csv_dir:   data/csv_outputs         # matched pairs CSVs
-stats_base:         data/stats               # per-pair stats.json files
-coeff_dir:          data/real_world/coeffs   # ThermalRegress coefficients_*.npy
+checkpoint_base:    checkpoints/matchers
+sim2real_data_root: data/real_world
+sim2real_csv_dir:   data/real_world/csv_outputs
+stats_base:         data/AeroSync
+coeff_dir:          data/real_world/coeffs
 results_dir:        evaluation_results
 ```
 

@@ -31,7 +31,7 @@ def nm_to_um(wl: str) -> str:
 def resolve_ckpt(ckpt_base, wl0, wl1, model_name, use_phys):
     """Resolve checkpoint path from base dir."""
     phys_dir = 'phys' if use_phys else 'no_phys'
-    return Path(ckpt_base) / 'best' / f"{nm_to_um(wl0)}_{nm_to_um(wl1)}" / model_name / phys_dir / 'best.ckpt'
+    return Path(ckpt_base) / f"{nm_to_um(wl0)}_{nm_to_um(wl1)}" / model_name / phys_dir / 'best.ckpt'
 
 
 def load_image_pair(data_dir, wl0, wl1, idx0, idx1, crop_size):

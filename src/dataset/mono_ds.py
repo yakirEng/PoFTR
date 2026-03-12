@@ -57,13 +57,7 @@ class MonochromeDs(IterableDataset):
         self.sanity_check = sanity_check if sanity_check is not None else config['run']['sanity_check']
 
         # 1) find your shard files explicitly
-        if self.ablation_version == "standard":
-            self.base = Path(self.config['proj']['cwd']) / "data" / "simulated" / "datasets" / self.distribution_type / self.dataset_version / dataset_type
-        elif self.ablation_version == "upper_bound" or self.ablation_version == "zeroed_priors":
-            dataset_str = self.dataset_version + f"_{self.ablation_version}"
-            self.base = Path(self.config['proj']['cwd']) / "data" / "simulated" /  "datasets" / self.distribution_type / "ablations" / dataset_str / dataset_type
-        else:
-            raise ValueError(f"Unknown ablation_version: {self.ablation_version}")
+        self.base = Path(self.config['proj']['cwd']) / "data" / "AeroSync" / self.dataset_version / dataset_type
         shards = sorted(self.base.glob("shard-*.tar"))
         if not shards:
             raise FileNotFoundError(f"No shards found in {self.base}")

@@ -17,22 +17,21 @@ model_name: xoftr          # options: xoftr, loftr, aspanformer
 use_phys:   true           # true = PoFTR (physics-aware), false = baseline
 
 # --- Checkpoints ---
-checkpoint_base: checkpoints
+checkpoint_base: checkpoints/matchers
 # Expected structure:
-#   checkpoints/best/{band_pair}/{model_name}/{phys|no_phys}/best.ckpt
+#   checkpoints/matchers/{band_pair}/{model_name}/{phys|no_phys}/best.ckpt
 
 # --- AeroSync Evaluation (eval_aerosync.py) ---
 band_pairs:
   - 9um_pan
   - 11um_pan
   - 9um_11um
-data_root: data            # root path for AeroSync webdataset shards
 
 # --- Sim2Real Evaluation (eval_sim2real.py) ---
-sim2real_data_root: data/real_world    # path to real-world .npz files
-sim2real_csv_dir:   data/csv_outputs   # path to matched pairs CSVs
-stats_base:         data/stats         # path to per-pair stats.json files ({wl0}_{wl1}/stats.json)
-coeff_dir:          data/real_world/coeffs  # path to coefficients_*.npy files for ThermalRegress
+sim2real_data_root: data/real_world         # path to real-world .npz files
+sim2real_csv_dir:   data/real_world/csv_outputs  # path to matched pairs CSVs
+stats_base:         data/AeroSync           # per-pair stats: {stats_base}/{wl0}_{wl1}/stats.json
+coeff_dir:          data/real_world/coeffs  # coefficients_*.npy files for ThermalRegress
 dist_thresh:        10.0               # max distance (meters) between paired captures
 n_samples:          320                # number of pairs to evaluate
 crop_size:          256

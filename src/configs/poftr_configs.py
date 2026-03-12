@@ -2,6 +2,7 @@ from yacs.config import CfgNode as CN
 import numpy as np
 import os
 from datetime import datetime
+from pathlib import Path
 import sys
 
 from src.configs.loftr_configs import get_loftr_defaults
@@ -259,10 +260,8 @@ def finalize_cfg(cfg):
     cfg.RUN.run_platform = 'hpc' if os.environ.get('SLURM_JOB_ID') else 'local'
     is_hpc = (cfg.RUN.run_platform == 'hpc')
 
-    # 2) Platform-dependent paths & system knobs
-    cfg.PROJ.cwd = ("/home/ARO.local/yakirh/Projects/yakirs_thesis/thesis"
-        if is_hpc else r"F:/yakirs_thesis/thesis_code"
-                     )
+    # 2) Repo root (auto-detected from this file's location: src/configs/poftr_configs.py)
+    cfg.PROJ.cwd = str(Path(__file__).resolve().parents[2])
 
     cfg.PROJ.data_path = f"{cfg.PROJ.cwd}/data"
 

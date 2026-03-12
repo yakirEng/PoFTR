@@ -41,7 +41,7 @@ def get_checkpoint_path(cfg_eval, band_pair):
     phys_dir   = 'phys' if use_phys else 'no_phys'
     model_name = cfg_eval['model_name']
     ckpt_base  = Path(cfg_eval['checkpoint_base'])
-    return ckpt_base / 'best' / band_pair / model_name / phys_dir / 'best.ckpt'
+    return ckpt_base / band_pair / model_name / phys_dir / 'best.ckpt'
 
 
 def run_eval(config, cfg_eval, band_pair, device):
