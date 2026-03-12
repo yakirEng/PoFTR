@@ -398,7 +398,7 @@ def tune_hparams(cfg):
      cfg.TRAIN.batch_size = 16 if cfg.RUN.run_platform == 'hpc' else 2
 
 
-def _get_method(base_model: str) -> CN:
+def get_method_config(base_model: str) -> CN:
     if base_model == "loftr":
         method = get_loftr_defaults()
     elif base_model == "aspanformer":
@@ -416,7 +416,7 @@ def get_config():
 
     base_model = poftr_config.PROJ.base_model
 
-    method = _get_method(base_model)
+    method = get_method_config(base_model)
 
     # 3) build one run config with namespaces
     run_cfg = CN()

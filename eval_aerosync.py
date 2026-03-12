@@ -4,7 +4,7 @@ import pandas as pd
 import pytorch_lightning as pl
 from pathlib import Path
 
-from src.configs.poftr_configs import get_config
+from src.configs.poftr_configs import get_config, get_method_config
 from src.utils.misc import lower_config
 from src.PoFTR.lightning.data_module import SATDataModule
 from src.PoFTR.poftr import PoFTR
@@ -128,6 +128,7 @@ if __name__ == '__main__':
     config['poftr']['train']['batch_size']     = cfg_eval.get('batch_size', 8)
     config['poftr']['phys']['use_phys']        = cfg_eval.get('use_phys', True)
     config['poftr']['proj']['base_model']      = cfg_eval.get('model_name', 'xoftr')
+    config['method'] = lower_config(get_method_config(config['poftr']['proj']['base_model']))
 
     band_pairs = cfg_eval.get('band_pairs', ['9um_pan', '11um_pan', '9um_11um'])
 
