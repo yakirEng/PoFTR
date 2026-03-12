@@ -31,9 +31,12 @@ data_root: data            # root path for AeroSync webdataset shards
 # --- Sim2Real Evaluation (eval_sim2real.py) ---
 sim2real_data_root: data/real_world    # path to real-world .npz files
 sim2real_csv_dir:   data/csv_outputs   # path to matched pairs CSVs
+stats_base:         data/stats         # path to per-pair stats.json files ({wl0}_{wl1}/stats.json)
+coeff_dir:          data/real_world/coeffs  # path to coefficients_*.npy files for ThermalRegress
 dist_thresh:        10.0               # max distance (meters) between paired captures
 n_samples:          320                # number of pairs to evaluate
 crop_size:          256
+ransac_thresh:      3.0                # RANSAC inlier threshold (pixels)
 
 # --- Runtime ---
 batch_size:      8

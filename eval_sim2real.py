@@ -95,7 +95,7 @@ def eval_xoftr(cfg_eval, config, wl0, wl1, df_filtered, global_stats, device):
         batch = kpts0 = kpts1 = conf = None
         try:
             _, _, img0, img1 = load_image_pair(
-                cfg_eval['data_root'], wl0, wl1, idx0, idx1, cfg_eval['crop_size']
+                cfg_eval['sim2real_data_root'], wl0, wl1, idx0, idx1, cfg_eval['crop_size']
             )
             batch        = prepare_xoftr_batch(img0_np=img0, img1_np=img1,
                                                global_stats=global_stats,
@@ -132,7 +132,7 @@ def eval_poftr(cfg_eval, config, wl0, wl1, df_filtered, global_stats, phys_model
         batch = kpts0 = kpts1 = conf = None
         try:
             f0, f1, img0, img1 = load_image_pair(
-                cfg_eval['data_root'], wl0, wl1, idx0, idx1, cfg_eval['crop_size']
+                cfg_eval['sim2real_data_root'], wl0, wl1, idx0, idx1, cfg_eval['crop_size']
             )
             fpa0   = np.array(float(f0["fpa"]) / 100.0)
             fpa1   = np.array(float(f1["fpa"]) / 100.0)
@@ -170,7 +170,7 @@ def eval_matchanything(cfg_eval, wl0, wl1, df_filtered, device):
         idx0, idx1 = int(row[wl0]), int(row[wl1])
         try:
             _, _, img0, img1 = load_image_pair(
-                cfg_eval['data_root'], wl0, wl1, idx0, idx1, cfg_eval['crop_size']
+                cfg_eval['sim2real_data_root'], wl0, wl1, idx0, idx1, cfg_eval['crop_size']
             )
             batch = prepare_matchanything_batch(img0_np=img0, img1_np=img1, crop_size=cfg_eval['crop_size'])
             batch = {k: v.to(device) if isinstance(v, torch.Tensor) else v for k, v in batch.items()}

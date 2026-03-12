@@ -188,7 +188,7 @@ def build_inference_sample(img0, img1, prior0=None, prior1=None, use_phys=True, 
 import json
 from pathlib import Path
 
-STATS_BASE = Path(r"F:\yakirs_thesis\thesis_code\data\simulated\datasets\truncnorm")
+STATS_BASE = Path("data/stats")
 
 def load_stats(wl0: str, wl1: str, stats_base: Path = STATS_BASE) -> dict:
     """Load global dataset stats for a given wl pair.

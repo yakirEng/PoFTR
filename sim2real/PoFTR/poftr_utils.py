@@ -6,9 +6,9 @@ from pathlib import Path
 
 from src.configs.poftr_configs import get_config
 from src.utils.misc import lower_config
-from src.dataset.data_module import SATDataModule
+from src.PoFTR.lightning.data_module import SATDataModule
 from src.PoFTR.poftr import PoFTR
-from src.PoFTR.lightning_module import PL_PoFTR
+from src.PoFTR.lightning.pl_poftr import PL_PoFTR
 
 
 def load_poftr_model(config, checkpoint_path, device='cuda'):
@@ -44,7 +44,7 @@ def run_eval(config, cfg_eval, band_pair, device):
     print(f"{'='*50}")
 
     # Override dataset version for this band pair
-    config['data']['dataset_version'] = band_pair
+    config['poftr']['data']['dataset_version'] = band_pair
 
     # Resolve and validate checkpoint path
     ckpt_path = get_checkpoint_path(cfg_eval, band_pair)
@@ -52,7 +52,7 @@ def run_eval(config, cfg_eval, band_pair, device):
         raise FileNotFoundError(f"Checkpoint not found: {ckpt_path}")
 
     # Setup datamodule (test split only)
-    data_module = SATDataModule(config, splits=('test',))
+    data_module = SATDataModule(config['poftr'], splits=('test',))
     data_module.setup()
 
     # Load model
@@ -118,9 +118,9 @@ if __name__ == '__main__':
 
     # Override test-specific settings
     config['poftr']['test']['enable_plotting'] = False
-    config['run']['num_workers']               = cfg_eval.get('num_workers', 4)
-    config['run']['prefetch_factor']           = cfg_eval.get('prefetch_factor', 2)
-    config['train']['batch_size']              = cfg_eval.get('batch_size', 8)
+    config['poftr']['run']['num_workers']      = cfg_eval.get('num_workers', 4)
+    config['poftr']['run']['prefetch_factor']  = cfg_eval.get('prefetch_factor', 2)
+    config['poftr']['train']['batch_size']     = cfg_eval.get('batch_size', 8)
     config['poftr']['phys']['use_phys']        = cfg_eval.get('use_phys', True)
     config['poftr']['proj']['base_model']      = cfg_eval.get('model_name', 'xoftr')
 
