@@ -144,10 +144,10 @@ section.
 All training settings are configured in `src/configs/poftr_configs.py`. 
 The key fields to set before fine-tuning:
 ```python
-config['poftr']['proj']['base_model'] # 'xoftr', 'loftr', or 'aspanformer'
-config['poftr']['phys']['use_phys']   # True = PoFTR, False = baseline
-config['data']['dataset_version']     # '9um_pan', '11um_pan', or '9um_11um'
-config['poftr']['pretrained_ckpt']    # path to pretrained backbone weights
+config['poftr']['proj']['base_model']    # 'xoftr', 'loftr', or 'aspanformer'
+config['poftr']['phys']['use_phys']     # True = PoFTR, False = baseline
+config['poftr']['data']['dataset_version']  # '9um_pan', '11um_pan', or '9um_11um'
+config['poftr']['pretrained_ckpt']      # path to pretrained backbone weights
 ```
 
 Then run:
@@ -199,10 +199,11 @@ and place them according to the following structure:
 ```
 PoFTR/
 ├── data/
-│   ├── real_world/          ← real-world .npz files
+│   ├── real_world/          ← real-world .npz files + coeffs/
+│   │   └── coeffs/          ← ThermalRegress coefficients_*.npy
 │   ├── csv_outputs/         ← matched pairs CSVs
-│   ├── simulated/           ← AeroSync webdataset shards
-│   └── physical_model/      ← PETIT-GAN calibration coefficients
+│   ├── stats/               ← per-pair stats.json files
+│   └── <band_pair>/         ← AeroSync webdataset shards (e.g. 9um_pan/)
 └── checkpoints/
     └── best/                ← pretrained model checkpoints
 ```
@@ -211,12 +212,13 @@ PoFTR/
 
 Edit `configs/eval_config.yaml` to set your local paths:
 ```yaml
-checkpoint_base: checkpoints
-data_root:        data/real_world
-sim2real_csv_dir: data/csv_outputs
-stats_base:       data/simulated/datasets/truncnorm
-coeff_dir:        data/physical_model/coeffs
-results_dir:      evaluation_results
+checkpoint_base:    checkpoints
+data_root:          data                     # AeroSync webdataset shards
+sim2real_data_root: data/real_world          # real-world .npz files
+sim2real_csv_dir:   data/csv_outputs         # matched pairs CSVs
+stats_base:         data/stats               # per-pair stats.json files
+coeff_dir:          data/real_world/coeffs   # ThermalRegress coefficients_*.npy
+results_dir:        evaluation_results
 ```
 
 ---
