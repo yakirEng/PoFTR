@@ -4,17 +4,13 @@
 # Edit this file before running eval_aerosync.py
 # or eval_sim2real.py
 
-# --- Model ---
-# To reproduce PoFTR results:
-#   model_name: xoftr
-#   use_phys:   true
-#
-# To reproduce baseline results:
-#   model_name: xoftr      # or: loftr, aspanformer
-#   use_phys:   false
-
-model_name: xoftr          # options: xoftr, loftr, aspanformer
-use_phys:   true           # true = PoFTR (physics-aware), false = baseline
+# --- Models to evaluate ---
+# Comment out any model you want to skip.
+models:
+  - {name: PoFTR,       base_model: xoftr,       use_phys: true}
+  - {name: XoFTR,       base_model: xoftr,       use_phys: false}
+  - {name: LoFTR,       base_model: loftr,       use_phys: false}
+  - {name: ASpanFormer, base_model: aspanformer, use_phys: false}
 
 # --- Checkpoints ---
 checkpoint_base: checkpoints/matchers
