@@ -132,10 +132,12 @@ if __name__ == '__main__':
 
     band_pairs = cfg_eval.get('band_pairs', ['9um_pan', '11um_pan', '9um_11um'])
     models     = cfg_eval.get('models', [
-        {'name': 'PoFTR',       'base_model': 'xoftr',       'use_phys': True},
-        {'name': 'XoFTR',       'base_model': 'xoftr',       'use_phys': False},
-        {'name': 'LoFTR',       'base_model': 'loftr',       'use_phys': False},
-        {'name': 'ASpanFormer', 'base_model': 'aspanformer', 'use_phys': False},
+        {'name': 'PoFTR',             'base_model': 'xoftr',       'use_phys': True},
+        {'name': 'XoFTR',             'base_model': 'xoftr',       'use_phys': False},
+        {'name': 'Phys_LoFTR',       'base_model': 'loftr',       'use_phys': True},
+        {'name': 'LoFTR',            'base_model': 'loftr',       'use_phys': False},
+        {'name': 'Phys_ASpanFormer', 'base_model': 'aspanformer', 'use_phys': True},
+        {'name': 'ASpanFormer',       'base_model': 'aspanformer', 'use_phys': False},
     ])
 
     # --- Run evaluation for all models x band pairs ---

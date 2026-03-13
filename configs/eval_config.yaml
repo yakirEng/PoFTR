@@ -7,10 +7,12 @@
 # --- Models to evaluate ---
 # Comment out any model you want to skip.
 models:
-  - {name: PoFTR,       base_model: xoftr,       use_phys: true}
-  - {name: XoFTR,       base_model: xoftr,       use_phys: false}
-  - {name: LoFTR,       base_model: loftr,       use_phys: false}
-  - {name: ASpanFormer, base_model: aspanformer, use_phys: false}
+  - {name: PoFTR,            base_model: xoftr,       use_phys: true}
+  - {name: XoFTR,            base_model: xoftr,       use_phys: false}
+  - {name: Phys_LoFTR,       base_model: loftr,       use_phys: true}
+  - {name: LoFTR,            base_model: loftr,       use_phys: false}
+  - {name: Phys_ASpanFormer, base_model: aspanformer, use_phys: true}
+  - {name: ASpanFormer,      base_model: aspanformer, use_phys: false}
 
 # --- Checkpoints ---
 checkpoint_base: checkpoints/matchers
