@@ -235,21 +235,20 @@ results_dir:        evaluation_results
 
 ### Reproduce AeroSync Benchmark
 
-Evaluates PoFTR and baselines on the AeroSync synthetic test set across all three
-spectral configurations (9µm–PAN, 11µm–PAN, 9µm–11µm).
+Evaluates all models (PoFTR, XoFTR, Phys\_LoFTR, LoFTR, Phys\_ASpanFormer, ASpanFormer)
+on the AeroSync synthetic test set across all three spectral configurations
+(9µm–PAN, 11µm–PAN, 9µm–11µm).
 
-To evaluate **PoFTR**:
+To select which models to evaluate, edit the `models` list in `configs/eval_config.yaml`
+(comment out any entry to skip it):
 ```yaml
-# configs/eval_config.yaml
-model_name: xoftr
-use_phys:   true
-```
-
-To evaluate a **baseline** (e.g. XoFTR):
-```yaml
-# configs/eval_config.yaml
-model_name: xoftr   # or: loftr, aspanformer
-use_phys:   false
+models:
+  - {name: PoFTR,            base_model: xoftr,       use_phys: true}
+  - {name: XoFTR,            base_model: xoftr,       use_phys: false}
+  - {name: Phys_LoFTR,       base_model: loftr,       use_phys: true}
+  - {name: LoFTR,            base_model: loftr,       use_phys: false}
+  - {name: Phys_ASpanFormer, base_model: aspanformer, use_phys: true}
+  - {name: ASpanFormer,      base_model: aspanformer, use_phys: false}
 ```
 
 Then run:
@@ -261,6 +260,12 @@ Results (Pose Success, MMA@3, #Inliers) will be printed to the terminal and save
 ```
 evaluation_results/aerosync_results.csv
 ```
+
+> **Note on reproducing paper numbers:** Results in the paper are reported as mean ± std
+> over 3 independently trained models (different random seeds). The provided checkpoints
+> are the best single-seed models. Expect small numerical differences (typically < 1%)
+> due to single-seed vs. multi-seed averaging and non-deterministic IterableDataset
+> ordering across runs.
 
 ---
 
