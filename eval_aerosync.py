@@ -1,5 +1,7 @@
 import yaml
 import torch
+import torch.multiprocessing as mp
+mp.set_sharing_strategy('file_system')
 import pandas as pd
 import pytorch_lightning as pl
 from pathlib import Path
@@ -20,6 +22,15 @@ def load_model(config, checkpoint_path, device='cuda'):
     base_model = config['poftr']['proj']['base_model']
     use_phys   = config['poftr']['phys']['use_phys']
     print(f"Loading model | base: {base_model} | phys: {use_phys}")
+
+    # Infer SFT bottleneck_dim from checkpoint to avoid size mismatch
+    if use_phys:
+        ckpt_sd = torch.load(checkpoint_path, map_location='cpu', weights_only=False)['state_dict']
+        sft_key = next((k for k in ckpt_sd if 'sft_input.mlp.0.weight' in k), None)
+        if sft_key is not None:
+            inferred_dim = ckpt_sd[sft_key].shape[0]
+            config['poftr']['sft']['bottleneck_dim'] = inferred_dim
+            print(f"Inferred SFT bottleneck_dim={inferred_dim} from checkpoint")
 
     model = PoFTR(config).to(device)
     print(f"Loading weights from: {checkpoint_path}")
@@ -132,12 +143,7 @@ if __name__ == '__main__':
 
     band_pairs = cfg_eval.get('band_pairs', ['9um_pan', '11um_pan', '9um_11um'])
     models     = cfg_eval.get('models', [
-        {'name': 'PoFTR',             'base_model': 'xoftr',       'use_phys': True},
-        {'name': 'XoFTR',             'base_model': 'xoftr',       'use_phys': False},
-        {'name': 'Phys_LoFTR',       'base_model': 'loftr',       'use_phys': True},
-        {'name': 'LoFTR',            'base_model': 'loftr',       'use_phys': False},
-        {'name': 'Phys_ASpanFormer', 'base_model': 'aspanformer', 'use_phys': True},
-        {'name': 'ASpanFormer',       'base_model': 'aspanformer', 'use_phys': False},
+        {'name': 'PoFTR', 'base_model': 'xoftr', 'use_phys': True},
     ])
 
     # --- Run evaluation for all models x band pairs ---

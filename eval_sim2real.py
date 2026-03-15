@@ -4,6 +4,8 @@ import yaml
 import numpy as np
 import pandas as pd
 import torch
+import torch.multiprocessing as mp
+mp.set_sharing_strategy('file_system')
 from pathlib import Path
 from tqdm import tqdm
 
