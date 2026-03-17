@@ -1,0 +1,14 @@
+{
+  "model": "XoFTR",
+  "wl0": "9000nm",
+  "wl1": "11000nm",
+  "n_pairs_evaluated": 320,
+  "n_pairs_failed": 0,
+  "mean_inlier_ratio": 0.9999720982142858,
+  "std_inlier_ratio": 0.00038356412637377687,
+  "median_inlier_ratio": 1.0,
+  "mean_n_inliers": 783.984375,
+  "std_n_inliers": 0.31134189796663586,
+  "pairs_with_no_matches": 0,
+  "pairs_with_no_inliers": 0
+}

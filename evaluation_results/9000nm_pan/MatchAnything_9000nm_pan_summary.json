@@ -1,0 +1,14 @@
+{
+  "model": "MatchAnything",
+  "wl0": "9000nm",
+  "wl1": "pan",
+  "n_pairs_evaluated": 320,
+  "n_pairs_failed": 0,
+  "mean_inlier_ratio": 0.31212555845348666,
+  "std_inlier_ratio": 0.33499014694834395,
+  "median_inlier_ratio": 0.0,
+  "mean_n_inliers": 5.38125,
+  "std_n_inliers": 6.203823146261829,
+  "pairs_with_no_matches": 4,
+  "pairs_with_no_inliers": 165
+}

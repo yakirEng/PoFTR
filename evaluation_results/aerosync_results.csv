@@ -1,0 +1,7 @@
+Model,Dataset,Pose Success ↑,MMA@3 ↑,# Inliers ↑
+PoFTR,9um_pan,0.779,0.649,243.7
+PoFTR,11um_pan,0.777,0.671,247.4
+PoFTR,9um_11um,0.765,0.661,242.0
+XoFTR,9um_pan,0.773,0.691,247.5
+XoFTR,11um_pan,0.770,0.612,245.7
+XoFTR,9um_11um,0.753,0.603,241.9

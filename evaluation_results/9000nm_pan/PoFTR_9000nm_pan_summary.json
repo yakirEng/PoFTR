@@ -1,0 +1,14 @@
+{
+  "model": "PoFTR",
+  "wl0": "9000nm",
+  "wl1": "pan",
+  "n_pairs_evaluated": 320,
+  "n_pairs_failed": 0,
+  "mean_inlier_ratio": 0.9992346938775512,
+  "std_inlier_ratio": 0.003160702671105323,
+  "median_inlier_ratio": 1.0,
+  "mean_n_inliers": 783.4,
+  "std_n_inliers": 2.4779908941465814,
+  "pairs_with_no_matches": 0,
+  "pairs_with_no_inliers": 0
+}
