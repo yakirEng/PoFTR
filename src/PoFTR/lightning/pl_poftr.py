@@ -536,7 +536,7 @@ class PL_PoFTR(pl.LightningModule):
         # We check if they exist in the dict to be safe
         thresholds = [1, 3, 5, 10]
         mma_keys = [f"MMA@{t}" for t in thresholds if f"MMA@{t}" in metrics]
-        geo_keys = ["MRE", "Corner_Error", "Num_Matches"]
+        geo_keys = ["MRE", "Corner_Error", "Num_Matches", "Num_Inliers"]
 
         # 2. Helper to build tables
         def build_table(keys, metrics_dict):

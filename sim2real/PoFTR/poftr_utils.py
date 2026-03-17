@@ -1,5 +1,6 @@
 import yaml
 import torch
+import numpy as np
 import pandas as pd
 import pytorch_lightning as pl
 from pathlib import Path
@@ -9,6 +10,58 @@ from src.utils.misc import lower_config
 from src.PoFTR.lightning.data_module import SATDataModule
 from src.PoFTR.poftr import PoFTR
 from src.PoFTR.lightning.pl_poftr import PL_PoFTR
+from sim2real.XoFTR.xoftr_utils import safe_center_crop_numpy, normalize_with_stats
+
+
+def prepare_poftr_batch(img0_np, img1_np, p0_np, p1_np, global_stats, crop_size=256, coarse_scale=8):
+    """Prepares the concatenated [Image, Prior, Mask] input batch for PoFTR."""
+    # 1. Crop
+    i0 = safe_center_crop_numpy(img0_np, crop_size)
+    i1 = safe_center_crop_numpy(img1_np, crop_size)
+    p0 = safe_center_crop_numpy(p0_np,   crop_size)
+    p1 = safe_center_crop_numpy(p1_np,   crop_size)
+
+    # 2. To tensors (1, H, W)
+    i0_t = torch.from_numpy(i0).float().unsqueeze(0).unsqueeze(0)
+    i1_t = torch.from_numpy(i1).float().unsqueeze(0).unsqueeze(0)
+    p0_t = torch.from_numpy(p0).float().unsqueeze(0).unsqueeze(0)
+    p1_t = torch.from_numpy(p1).float().unsqueeze(0).unsqueeze(0)
+
+    # 3. Normalize
+    i0_t = normalize_with_stats(i0_t, global_stats['image0']['mean'], global_stats['image0']['std'])
+    i1_t = normalize_with_stats(i1_t, global_stats['image1']['mean'], global_stats['image1']['std'])
+    p0_t = normalize_with_stats(p0_t, global_stats['phys0']['mean'],  global_stats['phys0']['std'])
+    p1_t = normalize_with_stats(p1_t, global_stats['phys1']['mean'],  global_stats['phys1']['std'])
+
+    # 4. Masks
+    pixel_mask0 = torch.ones((1, 1, crop_size, crop_size), dtype=torch.float32)
+    pixel_mask1 = torch.ones((1, 1, crop_size, crop_size), dtype=torch.float32)
+    mask0 = torch.ones((1, crop_size // coarse_scale, crop_size // coarse_scale), dtype=torch.bool)
+    mask1 = torch.ones((1, crop_size // coarse_scale, crop_size // coarse_scale), dtype=torch.bool)
+
+    # 5. Concatenate [image, prior, mask] along channel dim — matches mono_ds.py
+    img0_cat = torch.cat([i0_t, p0_t, pixel_mask0], dim=1)
+    img1_cat = torch.cat([i1_t, p1_t, pixel_mask1], dim=1)
+
+    return {
+        'image0':      img0_cat,
+        'image1':      img1_cat,
+        'mask0':       mask0,
+        'mask1':       mask1,
+        'pixel_mask0': pixel_mask0.squeeze(0).bool(),
+        'pixel_mask1': pixel_mask1.squeeze(0).bool(),
+    }
+
+
+def run_poftr(batch, model, device='cuda'):
+    """Run inference with a pre-loaded PoFTR model."""
+    batch = {k: v.to(device) if isinstance(v, torch.Tensor) else v for k, v in batch.items()}
+    with torch.no_grad():
+        model(batch)
+    kpts0 = batch['mkpts0_f'].cpu().numpy()
+    kpts1 = batch['mkpts1_f'].cpu().numpy()
+    conf  = batch['mconf'].cpu().numpy()
+    return kpts0, kpts1, conf
 
 
 def load_poftr_model(config, checkpoint_path, device='cuda'):

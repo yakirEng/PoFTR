@@ -163,18 +163,16 @@ class MonochromeDs(IterableDataset):
             raise ValueError(f"Unknown dataset_type: {self.dataset_type}")
 
     def __iter__(self):
-        pipeline = (
-            WebDataset(
-                self.shards,
-                shardshuffle=False,
-                nodesplitter=split_by_node,
-                workersplitter=split_by_worker,
-                resampled=True if self.dataset_type == "train" else False
-            )
-            .shuffle(self.shuffle_size)
-            .to_tuple("__key__", "npz")
-            .map(self._process_sample)
+        wds = WebDataset(
+            self.shards,
+            shardshuffle=False,
+            nodesplitter=split_by_node,
+            workersplitter=split_by_worker,
+            resampled=True if self.dataset_type == "train" else False
         )
+        if self.dataset_type == "train":
+            wds = wds.shuffle(self.shuffle_size)
+        pipeline = wds.to_tuple("__key__", "npz").map(self._process_sample)
 
         # Apply sanity check if needed
         if self.sanity_check:

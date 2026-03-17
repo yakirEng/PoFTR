@@ -48,6 +48,16 @@ def load_image_pair(data_dir, wl0, wl1, idx0, idx1, crop_size):
 def aggregate_summary(model_name, wl0, wl1, results, failed):
     """Compute summary statistics from per-pair results."""
     df = pd.DataFrame(results)
+    if df.empty:
+        print(f"  [WARNING] No successful pairs for {model_name} | {wl0}<->{wl1}")
+        return {
+            'model': model_name, 'wl0': wl0, 'wl1': wl1,
+            'n_pairs_evaluated': 0, 'n_pairs_failed': len(failed),
+            'mean_inlier_ratio': float('nan'), 'std_inlier_ratio': float('nan'),
+            'median_inlier_ratio': float('nan'), 'mean_n_inliers': float('nan'),
+            'std_n_inliers': float('nan'), 'pairs_with_no_matches': 0,
+            'pairs_with_no_inliers': 0,
+        }, df
     return {
         'model':                 model_name,
         'wl0':                   wl0,
@@ -170,6 +180,7 @@ def eval_matchanything(cfg_eval, wl0, wl1, df_filtered, device):
 
     for _, row in tqdm(df_filtered.iterrows(), total=len(df_filtered), desc=f"MatchAnything | {wl0}<->{wl1}"):
         idx0, idx1 = int(row[wl0]), int(row[wl1])
+        batch = outputs = kpts0 = kpts1 = conf = None
         try:
             _, _, img0, img1 = load_image_pair(
                 cfg_eval['sim2real_data_root'], wl0, wl1, idx0, idx1, cfg_eval['crop_size']
@@ -193,6 +204,9 @@ def eval_matchanything(cfg_eval, wl0, wl1, df_filtered, device):
         except Exception as e:
             print(f"  [FAILED] {idx0}_{idx1}: {e}")
             failed.append(f"{idx0}_{idx1}")
+        finally:
+            del batch, outputs, kpts0, kpts1, conf
+            cleanup()
 
     return aggregate_summary('MatchAnything', wl0, wl1, results, failed)
 
@@ -262,6 +276,9 @@ if __name__ == '__main__':
         csv_path    = Path(cfg_eval['sim2real_csv_dir']) / f"sorted_matched_pairs_{wl0}_{wl1}.csv"
         df          = pd.read_csv(csv_path)
         df_filtered = df[df['Distance_meters'] < cfg_eval['dist_thresh']].reset_index(drop=True)
+        n_samples   = cfg_eval.get('n_samples', None)
+        if n_samples is not None:
+            df_filtered = df_filtered.head(n_samples)
         print(f"Loaded {len(df_filtered)} pairs (distance < {cfg_eval['dist_thresh']}m)")
 
         # Load shared stats

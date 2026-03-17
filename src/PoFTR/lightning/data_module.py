@@ -74,7 +74,7 @@ class SATDataModule(pl.LightningDataModule):
             self.test_dataset,
             batch_size=self.batch_size,
             num_workers=self.num_workers,
-            pin_memory=True,
+            pin_memory=False,
             persistent_workers=self.num_workers > 0,
             prefetch_factor=self.prefetch_factor,
             drop_last=False,

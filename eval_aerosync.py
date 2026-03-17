@@ -111,7 +111,7 @@ def print_results_table(all_results):
         for band_pair, metrics in band_results.items():
             pose = metrics.get('test_Pose_Success_10px', float('nan'))
             mma  = metrics.get('test_MMA_3', float('nan'))
-            inl  = metrics.get('test_Num_Matches', float('nan'))
+            inl  = metrics.get('test_Num_Inliers', float('nan'))
             row  = [model_label, band_pair, f'{pose:.3f}', f'{mma:.3f}', f'{inl:.1f}']
             rows.append(row)
             print('|' + '|'.join(f' {v:^{col_w}} ' for v in row) + '|')
